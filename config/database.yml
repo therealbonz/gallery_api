@@ -1,0 +1,46 @@
+# PostgreSQL. Versions 9.3 and up are supported.
+#
+# Install the pg driver:
+#   gem install pg
+# On Ubuntu, also install libpq-dev:
+#   sudo apt install libpq-dev
+#
+# Configure Using Gemfile
+# gem "pg"
+#
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: bonz
+  password: brendhann
+  host: localhost
+  port: 5432
+
+development:
+  <<: *default
+  database: mydb
+
+test:
+  <<: *default
+  database: mydb_test
+
+production:
+  primary: &primary_production
+    <<: *default
+    database: gallery_api_production
+    username: bonz
+    password: brendhann
+  cache:
+    <<: *primary_production
+    database: gallery_api_production_cache
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_production
+    database: gallery_api_production_queue
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *primary_production
+    database: gallery_api_production_cable
+    migrations_paths: db/cable_migrate
