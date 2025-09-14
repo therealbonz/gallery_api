@@ -7,9 +7,21 @@ class MediaItemsController < ApplicationController
 
   # GET /media_items
   def index
-    items = MediaItem.includes(file_attachment: :blob).order(position: :asc)
-    render json: items.map { |item| media_item_json(item) }
-  end
+  page     = (params[:page] || 1).to_i
+  per_page = (params[:per_page] || 12).to_i
+
+  media_items = MediaItem
+                  .includes(file_attachment: :blob)
+                  .order(position: :asc, created_at: :desc) # position first, fallback by created
+                  .page(page)
+                  .per(per_page)
+
+  render json: {
+    items: media_items.map { |item| media_item_json(item) },
+    total_pages: media_items.total_pages,
+    current_page: media_items.current_page
+  }
+end
 
   # GET /media_items/:id
   def show

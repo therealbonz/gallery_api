@@ -4,15 +4,13 @@ class ApplicationController < ActionController::API
   include ActionController::RequestForgeryProtection
   include DeviseTokenAuth::Concerns::SetUserByToken
 
-  # For API requests, use null_session to avoid CSRF/session errors
-    protect_from_forgery with: :null_session, if: -> { request.format.json? }
+  # ✅ CSRF handling for API/JSON requests
+  protect_from_forgery with: :null_session, if: -> { request.format.json? }
 
-  # Skip session storage for Devise (API mode)
+  # ✅ Avoid storing session in API mode
   before_action :skip_session_storage
 
-
-
-  # Allow extra parameters for Devise (optional)
+  # ✅ Allow extra Devise params (name, etc.)
   before_action :configure_permitted_parameters, if: :devise_controller?
 
   private
@@ -24,7 +22,10 @@ class ApplicationController < ActionController::API
   protected
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:email, :password, :password_confirmation])
-    devise_parameter_sanitizer.permit(:account_update, keys: [:email, :password, :password_confirmation])
+    # For sign up
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :email, :password, :password_confirmation])
+
+    # For account update (PUT/PATCH /auth)
+    devise_parameter_sanitizer.permit(:account_update, keys: [:name, :email, :password, :password_confirmation])
   end
 end
